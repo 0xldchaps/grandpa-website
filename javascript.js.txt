@@ -1,0 +1,80 @@
+document.addEventListener('DOMContentLoaded', function() {
+});
+
+window.onload = function() {
+  var date = new Date();
+  var month = date.getMonth();
+  var year = date.getFullYear();
+  var birthdates = JSON.parse(localStorage.getItem('birthdates')) || [];
+
+  function generateCalendar(month, year) {
+    var firstDay = new Date(year, month, 1);
+    var lastDay = new Date(year, month + 1, 0);
+    var days = document.querySelector('.days');
+    days.innerHTML = ''; // Clear out any existing days
+
+    // Update 'todayDate' to reflect the currently viewed month and year
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    document.getElementById('todayDate').textContent = monthNames[month] + ' ' + year;
+
+    for (var i = firstDay.getDay(); i > 0; i--) {
+      var spacer = document.createElement('li');
+      spacer.className = 'calendar-day';
+      days.appendChild(spacer);
+    }
+
+    for (var i = 1; i <= lastDay.getDate(); i++) {
+      var day = document.createElement('li');
+      day.className = 'calendar-day';
+      day.textContent = i;
+
+      var birthdate = (month + 1).toString().padStart(2, '0') + '-' + i.toString().padStart(2, '0');
+      if (birthdates.includes(birthdate)) {
+        day.style.backgroundColor = 'yellow';
+      }
+
+      days.appendChild(day);
+    }
+  }
+
+  document.querySelector('.fa-square-caret-left').addEventListener('click', function() {
+    if (month === 0) {
+      month = 11;
+      year--;
+    } else {
+      month--;
+    }
+    generateCalendar(month, year);
+  });
+
+  document.querySelector('.fa-square-caret-right').addEventListener('click', function() {
+    if (month === 11) {
+      month = 0;
+      year++;
+    } else {
+      month++;
+    }
+    generateCalendar(month, year);
+  });
+
+  document.querySelector('.fa-calendar-plus').addEventListener('click', function() {
+    var birthdate = prompt('Enter a birthdate in the format MM-DD');
+    birthdates.push(birthdate);
+    localStorage.setItem('birthdates', JSON.stringify(birthdates));
+    generateCalendar(month, year);
+  });
+
+  document.querySelector('.fa-calendar-minus').addEventListener('click', function() {
+    var birthdate = prompt('Enter a birthdate to remove in the format MM-DD');
+    var index = birthdates.indexOf(birthdate);
+    if (index !== -1) {
+      birthdates.splice(index, 1);
+      localStorage.setItem('birthdates', JSON.stringify(birthdates));
+      generateCalendar(month, year);
+    }
+  });
+
+  generateCalendar(month, year); // Generate the current month when the page loads
+}
